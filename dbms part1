@@ -1,0 +1,191 @@
+-- Practice Problem 3
+
+drop table course cascade constraints;
+drop table courseregistration cascade constraints;
+
+create table course(courseid varchar2(6) primary key check (courseid like 'C%'), coursename varchar2(40), duration number, coursefee number);
+create table courseregistration(registrationid varchar2(6) primary key check (registrationid like 'R%'), studentid varchar2(6), courseid varchar2(6) references course(courseid), registrationdate date DEFAULT SYSDATE);
+
+insert into course values('C201','Advanced SQL',5,1200);
+insert into course values('C202','Networking Fundamentals',4,1600);
+insert into course values('C203','Cloud Computing',7,3500);
+insert into course values('C204','Software Testing',4,2500);
+
+insert into courseregistration values('R501','S301','C201','22-Sep-17');
+insert into courseregistration values('R502','S302','C202','20-Nov-17');
+insert into courseregistration values('R503','S303','C202','12-Oct-17');
+insert into courseregistration values('R504','S302','C201','27-Nov-17');
+insert into courseregistration values('R505','S304','C204','10-Nov-17');
+insert into courseregistration values('R506','S305','C203','17-Oct-17');
+
+select * from course;
+select * from courseregistration;
+
+-- Practice Problem 4
+
+DROP TABLE employee CASCADE CONSTRAINTS;
+DROP TABLE doctor CASCADE CONSTRAINTS;
+
+CREATE TABLE employee
+(
+empno NUMBER PRIMARY KEY,
+empname VARCHAR2(15) NOT NULL,
+emptype VARCHAR2(10),
+salary NUMBER,
+gender VARCHAR2(1) CHECK(gender in ('M','F')),
+emailid VARCHAR2(30) UNIQUE,
+dateofjoining DATE);
+
+CREATE TABLE doctor(
+doctorid NUMBER PRIMARY KEY REFERENCES employee(empno),
+qualification VARCHAR2(15),
+specialization VARCHAR2(30),
+inpatientfee NUMBER,
+outpatientfee NUMBER
+);
+
+delete from doctor;
+delete from employee;
+
+Insert into employee values(1002,'Alice','Doctor',95000,'F',NULL,'9-Jun-15'); 
+Insert into employee values(2001,'Henry','Admin',25000,'M','2001henry@xyz.com','10-Jun-15'); 
+Insert into employee values(1003,'Gabrielle','Doctor',110000,'F','1004gabrielle@xyz.com','14-Aug-15'); 
+Insert into employee values(9201,'Thomas','Attendant',20000,'M','9201thomas@xyz.com','22-Nov-15'); 
+Insert into employee values(1004,'Tom','Doctor',100000,'M',NULL,'25-Dec-15'); 
+Insert into employee values(1005,'Aldan','Doctor',150000,'M','1002aldan@xyz.com','24-Jan-16'); 
+Insert into employee values(1006,'Nicole','Doctor',90000,'F','1006nicole@xyz.com','12-Oct-16'); 
+Insert into employee values(9204,'Kate','Attendant',20000,'F','9204kate@xyz.com','30-Nov-16'); 
+
+Insert into doctor values(1002,'MS','Nephrology',600,400);
+Insert into doctor values(1003,'MD','Nephrology',700,500);
+Insert into doctor values(1004,'MS','Neurology',750,550);
+Insert into doctor values(1005,'MS','Cardiology',800,600);
+Insert into doctor values(1006,'MS','Gynaecology',550,350);
+
+select * from doctor;
+select * from employee;
+
+
+--ASSIGNMENT 1 ::
+CREATE TABLE Article(
+    ArCode CHAR(5) PRIMARY KEY CHECK(ArCode LIKE 'A%'),
+    ArName VARCHAR2(30) NOT NULL,
+    Rate NUMBER(8,2),
+    Quantity NUMBER(4)  DEFAULT 0 CHECK(Quantity >= 0),
+    Class CHAR(1) CHECK(Class IN ('A', 'B', 'C'))
+    );
+
+--ASSIGNMENT 6 ::
+ALTER TABLE Store RENAME COLUMN Name TO StoreName;
+
+--ASSIGNMENT 7 ::
+CREATE TABLE Bill(
+    BillNo NUMBER PRIMARY KEY,
+    StoreName VARCHAR2(20) REFERENCES Store(StoreName),
+    Shopperid NUMBER REFERENCES Shopper(ShopperId),
+    ArCode CHAR(5) REFERENCES Article(ArCode),
+    Amount NUMBER,
+    BillDate DATE,
+    Quantity NUMBER(4) DEFAULT 1 CHECK(Quantity > 0));
+
+--ASSIGNMENT 8 ::
+CREATE TABLE Supplier(
+    Supplierid VARCHAR2(6) PRIMARY KEY,
+    Name VARCHAR2(30),
+    ContactNo VARCHAR2(15) NOT NULL,
+    Emailid VARCHAR2(30));
+
+--ASSIGNMENT 9 ::
+ALTER TABLE Supplier ADD City VARCHAR2(10);
+
+--ASSIGNMENT 10 ::
+ALTER TABLE Supplier DROP COLUMN Emailid;
+
+--ASSIGNMENT 11 ::
+CREATE TABLE City(City VARCHAR2(20) UNIQUE);
+
+--ASSIGNMENT 12 ::
+ALTER TABLE City DROP (City);
+
+--ASSIGNMENT 13 ::
+CREATE TABLE Address(
+    HouseNo NUMBER PRIMARY KEY,
+    Street VARCHAR2(30),
+    city VARCHAR2(20) REFERENCES City(city),
+    zip NUMBER(6) CHECK(zip >= 0),
+    state VARCHAR2(5));
+--ASSIGNMENT 14 ::
+ALTER TABLE Address MODIFY state VARCHAR2(20);
+
+--DML Statement part 2 :
+--Exercise 5 ::
+UPDATE Product SET discount = 25 WHERE category='Sports'
+--Exercise 19 ::
+UPDATE Product SET price = 50 WHERE category='Apparel' AND Pdesc='Trouser'
+--Exercise 20 ::
+UPDATE Salesman SET Sname='Jenny', Location='Bristol' WHERE Sid=3
+--Exercise 6 ::
+DELETE FROM SaleDetail WHERE Saleid = 1004;
+--Exercise 22 ::
+DELETE FROM SaleDetail WHERE Quantity > 5;
+--Exercise 23 ::
+SELECT Prodid, Pdesc, Category FROM Product WHERE LOWER(Category) = 'electronics'
+--Exercise 24 ::
+SELECT Prodid, SUBSTR(Pdesc,1,5) Pdesc_five, Category FROM Product
+--Exercise 25 ::
+SELECT COUNT(Saleid) SALE_COUNT FROM Sale WHERE ABS(MONTHS_BETWEEN(sldate,SYSDATE))<40
+--Exercise 26 ::
+SELECT NVL(Pdesc, 'No Description') pdesc,Discount FROM Product
+--Exercise 27 ::
+SELECT Prodid, Category, price, discount FROM Product ORDER BY Category DESC, Price ASC;
+--Exercise 10 (28) ::
+SELECT Prodid, Category, discount FROM Product WHERE Category IN ('Sports','Apparel') ORDER BY Category ASC,Discount;
+
+--Exercise 29 ::
+SELECT to_char(sldate,'Month') "MONTH" ,count(SALEID) "NUMBER_SALE" from sale group by to_char(sldate,'Month') order by 2 DESC;
+
+--Exercise 11 (30) ::
+SELECT Prodid, SUM(quantity) qty_sold FROM Saledetail WHERE Quantity > 1 GROUP BY Prodid HAVING COUNT(prodid)> 1;
+
+--Exercise 40 ::
+select Sid, Sname, location from Salesman where sname like '%e%' and location like '%o%'
+union all
+select Sid, Sname, location from Salesman where sname like '%a%' and location like '%a%';
+
+--Exercise 41 ::
+select prodid, pdesc, Category, Discount from product where discount < 10 
+union all
+select prodid, pdesc, Category, Discount from product where category = 'Sports';
+
+--Exercise 42 ::
+select prodid, pdesc, Category, Discount from product where discount < 10 
+union all
+select prodid, pdesc, Category, Discount from product where category = 'Sports';
+
+--Exercise 43 ::
+SELECT 'S' AS "TYPE", Sid AS "ID", Sname AS "DETAILS" FROM Salesman
+UNION ALL
+SELECT 'P' AS "TYPE", Prodid AS "ID", Category AS "DETAILS" FROM Product;
+
+--Exercise 44 ::
+SELECT Id, EName, dept, E.CompId AS CompId, Make FROM Employee E INNER JOIN Computer C ON E.CompId = C.CompId;
+
+--Exercise 13 ::
+SELECT Id, EName, E.CompId AS CompId, Make FROM Employee E INNER JOIN Computer C ON E.CompId = C.CompId WHERE model in ('Precision','Edge');
+
+--Exercise 14 ::
+SELECT dept, COUNT(E.Compid) as "NUMBER OF COMPUTERS"FROM Employee E INNER JOIN Computer C ON E.Compid = C.Compid WHERE make='Dell' group by E.dept;
+
+--Exercise 47 ::
+SELECT Saleid, Sldate FROM Sale S INNER JOIN Salesman Sm ON S.Sid = Sm.Sid WHERE sm.location = 'London';
+
+--Exercise 15 ::
+SELECT S.Sid, S.Sname, S.Location FROM Salesman S INNER JOIN Salesman M ON S.Location=M.Location AND S.Sid<>M.Sid;
+
+--Exercise 49 ::
+SELECT S.Sname, M.Saleid FROM Salesman S LEFT OUTER JOIN Sale M ON S.Sid = M.Sid;
+
+--Exercise 51 ::
+SELECT S1.Saleid, S1.Prodid, S3.Sid, S3.Sname FROM Saledetail S1 JOIN Sale S2 ON S1.Saleid=S2.Saleid JOIN Salesman S3 ON s2.Sid=S3.Sid ;
+
+--Exercise 52 ::
